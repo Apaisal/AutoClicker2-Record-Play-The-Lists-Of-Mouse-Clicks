@@ -5,7 +5,7 @@
 **[YouTube English](https://youtu.be/MtrP3doKQtU)** | **[YouTube Español](https://youtu.be/38gmQLTpMYU)**
 ----- | -----
 
-Updated Nov 17 2025. New version 5.9.9.0: fixed issue #18; brand new MSI Windows installer.
+Updated Nov 25 2025. New version 5.9.9.0: fixed issue #18; brand new MSI Windows installer. Added General Traditional Chinese localization to site.
 
 ### Latest stable version 5.9.9.0 ([download](https://filedn.com/llBp1EbMQML0Hdv9A9SVo6b/AutoClicker2-Record-Play/SOFTUPD2T/Installer_AC2RecordPlay_v5.9.9.0.msi))
 
@@ -30,7 +30,7 @@ Mark this app as **CLEAN** in your antivirus software.
 
 ### ![Windows](./windows.svg) AutoClicker2 Record Play
 
-[English](https://federicadomani.github.io/AutoClicker2-Record-Play/) | [Español](https://federicadomani.github.io/AutoClicker2-Record-Play/es/) | [हिंदी](https://federicadomani.github.io/AutoClicker2-Record-Play/hi/)
+[English](https://federicadomani.github.io/AutoClicker2-Record-Play/) | [Español](https://federicadomani.github.io/AutoClicker2-Record-Play/es/) | [हिंदी](https://federicadomani.github.io/AutoClicker2-Record-Play/hi/) | [普通繁體中文](https://federicadomani.github.io/AutoClicker2-Record-Play/zh/)
 
 **See much more screenshots and study the quick user manual at [Official Site](https://federicadomani.github.io/AutoClicker2-Record-Play/).**
 
