@@ -275,22 +275,22 @@ namespace Auto_Clicker
             // XCoordHeader
             // 
             this.XCoordHeader.Text = "X";
-            this.XCoordHeader.Width = 70*2;
+            //this.XCoordHeader.Width = 70*2;
             // 
             // YCoordHeader
             // 
             this.YCoordHeader.Text = "Y";
-            this.YCoordHeader.Width = 70*2;
+            //this.YCoordHeader.Width = 70*2;
             // 
             // LRHeader
             // 
             this.LRHeader.Text = "L/M/R";
-            this.LRHeader.Width = 50*2;
+            //this.LRHeader.Width = 50*2;
             // 
             // SleepTimeHeader
             // 
             this.SleepTimeHeader.Text = "ms";
-            this.SleepTimeHeader.Width = 100*2;
+            //this.SleepTimeHeader.Width = 100*2;
             // 
             // ListViewContextMenu
             // 

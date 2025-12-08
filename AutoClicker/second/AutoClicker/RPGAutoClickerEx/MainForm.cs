@@ -25,6 +25,9 @@ namespace Auto_Clicker
         // Cancellation source to stop clicking thread cooperatively
         private CancellationTokenSource ClickCancellationSource;
 
+        // Currently highlighted item index in the ListView (-1 = none)
+        private int CurrentlyHighlightedIndex = -1;
+
         #endregion
 
         [DllImport("user32.dll")]
@@ -432,7 +435,10 @@ namespace Auto_Clicker
                     //Create a ClickHelper passing Lists of click information and a cancellation token
                     ClickCancellationSource = new CancellationTokenSource();
                     //Create a ClickHelper passing Lists of click information
-                    ClickThreadHelper helper = new ClickThreadHelper() { Points = points, ClickType = clickType, Iterations = iterations, Times = times, Cancellation = ClickCancellationSource.Token };
+                    ClickThreadHelper helper = new ClickThreadHelper() { 
+                        Points = points, ClickType = clickType, 
+                        Iterations = iterations, Times = times, 
+                        Cancellation = ClickCancellationSource.Token, Owner = this };
                     //Create the thread passing the Run method
                     ClickThread = new Thread(new ThreadStart(helper.Run));
                     ClickThread.IsBackground = true;
@@ -533,6 +539,60 @@ namespace Auto_Clicker
                     ClickCancellationSource = null;
                 }
             }
+        }
+        /// <summary>
+        /// Set the specified ListView item as highlighted (selected) and ensure visible.
+        /// Deselects the previously highlighted item.
+        /// </summary>
+        /// <param name="index">Index to highlight</param>
+        public void HighlightListViewItem(int index)
+        {
+            if (PositionsListView == null)
+                return;
+
+            if (index < 0 || index >= PositionsListView.Items.Count)
+                return;
+
+            // Deselect previous
+            if (CurrentlyHighlightedIndex >= 0 && CurrentlyHighlightedIndex < PositionsListView.Items.Count)
+            {
+                try
+                {
+                    PositionsListView.Items[CurrentlyHighlightedIndex].Selected = false;
+                    PositionsListView.Items[CurrentlyHighlightedIndex].BackColor = Color.White;
+                }
+                catch { }
+            }
+
+            // Select and ensure visible
+            try
+            {
+                PositionsListView.Items[index].Selected = true;
+                PositionsListView.Items[index].BackColor = Color.Yellow ;
+                PositionsListView.EnsureVisible(index);
+                CurrentlyHighlightedIndex = index;
+            }
+            catch { }
+        }
+
+        /// <summary>
+        /// Clear any highlighted ListView item.
+        /// </summary>
+        public void ClearHighlightedItem()
+        {
+            if (PositionsListView == null)
+                return;
+
+            if (CurrentlyHighlightedIndex >= 0 && CurrentlyHighlightedIndex < PositionsListView.Items.Count)
+            {
+                try
+                {
+                    PositionsListView.Items[CurrentlyHighlightedIndex].Selected = false;
+                    PositionsListView.Items[CurrentlyHighlightedIndex].BackColor = Color.White;
+                }
+                catch { }
+            }
+            CurrentlyHighlightedIndex = -1;
         }
 
         /// <summary>
@@ -716,6 +776,9 @@ namespace Auto_Clicker
 
             // Cancellation token for cooperative stop
             public CancellationToken Cancellation { get; set; }
+           
+            // Reference back to the owning form so we can request UI updates (highlight)
+            public MainForm Owner { get; set; }
 
             //Import unmanaged functions from DLL library
             [DllImport("user32.dll")]
@@ -899,6 +962,19 @@ namespace Auto_Clicker
                         {
                             if (Cancellation != null && Cancellation.IsCancellationRequested)
                                 break;
+
+                            // Highlight the corresponding ListView item on the UI thread
+                            if (Owner != null)
+                            {
+                                try
+                                {
+                                    Owner.BeginInvoke((Action)(() => Owner.HighlightListViewItem(j)));
+                                }
+                                catch
+                                {
+                                    // ignore if invoke fails
+                                }
+                            }
 
                             SetCursorPosition(Points[j]); //Set cursor position before clicking
 
