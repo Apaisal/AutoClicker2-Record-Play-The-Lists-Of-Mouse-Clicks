@@ -22,6 +22,9 @@ namespace Auto_Clicker
 
         private Point CurrentPosition { get; set; } //The current position of the mouse cursor
 
+        // Cancellation source to stop clicking thread cooperatively
+        private CancellationTokenSource ClickCancellationSource;
+
         #endregion
 
         [DllImport("user32.dll")]
@@ -426,10 +429,13 @@ namespace Auto_Clicker
                 }
                 try
                 {
+                    //Create a ClickHelper passing Lists of click information and a cancellation token
+                    ClickCancellationSource = new CancellationTokenSource();
                     //Create a ClickHelper passing Lists of click information
-                    ClickThreadHelper helper = new ClickThreadHelper() { Points = points, ClickType = clickType, Iterations = iterations, Times = times };
+                    ClickThreadHelper helper = new ClickThreadHelper() { Points = points, ClickType = clickType, Iterations = iterations, Times = times, Cancellation = ClickCancellationSource.Token };
                     //Create the thread passing the Run method
                     ClickThread = new Thread(new ThreadStart(helper.Run));
+                    ClickThread.IsBackground = true;
                     //Start the thread, thus starting the clicks
                     ClickThread.Start();
                 }
@@ -496,16 +502,36 @@ namespace Auto_Clicker
 
             try
             {
+                if (ClickCancellationSource != null)
+                {
+                    ClickCancellationSource.Cancel();
+                }
+
                 if ((ClickThread != null) && ClickThread.IsAlive)
                 {
-                    ClickThread.Abort(); //Attempt to stop the thread
-                    ClickThread.Join(); //Wait for thread to stop
+                    //ClickThread.Abort(); //Attempt to stop the thread
+                    // Wait up to 5 seconds for the thread to finish
+                    if (!ClickThread.Join(5000))
+                    {
+                        // If the thread doesn't stop in a reasonable time, inform the user.
+                        MessageBox.Show("Clicking thread did not stop within the timeout. Please wait or restart the application to ensure clicks stop.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    }
+
                     //MessageBox.Show("Clicking successfully stopped", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
             catch (Exception exc)
             {
                 MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Dispose the cancellation source
+                if (ClickCancellationSource != null)
+                {
+                    ClickCancellationSource.Dispose();
+                    ClickCancellationSource = null;
+                }
             }
         }
 
@@ -687,6 +713,10 @@ namespace Auto_Clicker
             public List<string> ClickType { get; set; } //Is each point right click or left click
             public List<int> Times { get; set; } //Holds sleep times for after each click
 
+
+            // Cancellation token for cooperative stop
+            public CancellationToken Cancellation { get; set; }
+
             //Import unmanaged functions from DLL library
             [DllImport("user32.dll")]
             public static extern void mouse_event(int dwFlags, int dx, int dy, int dwData, int dwExtraInfo);
@@ -764,7 +794,9 @@ namespace Auto_Clicker
             /// </summary>
             public void ClickLeftMouseButtonSendInput()
             {
-                if (m_clicking == false)
+                if (MainForm.m_clicking == false)
+                    return;
+                if (Cancellation != null && Cancellation.IsCancellationRequested)
                     return;
 
                 //Initialise INPUT object with corresponding values for a left click
@@ -792,7 +824,9 @@ namespace Auto_Clicker
             /// </summary>
             public void ClickRightMouseButtonSendInput()
             {
-                if (m_clicking == false)
+                if (MainForm.m_clicking == false)
+                    return;
+                if (Cancellation != null && Cancellation.IsCancellationRequested)
                     return;
 
                 //Initialise INPUT object with corresponding values for a right click
@@ -815,7 +849,9 @@ namespace Auto_Clicker
 
             public void ClickMiddleMouseButtonSendInput()
             {
-                if (m_clicking == false)
+                if (MainForm.m_clicking == false)
+                    return;
+                if (Cancellation != null && Cancellation.IsCancellationRequested)
                     return;
 
                 //Initialise INPUT object with corresponding values for a right click
@@ -855,10 +891,20 @@ namespace Auto_Clicker
 
                     while ((i <= Iterations) || (Iterations == 0))
                     {
+                        if (Cancellation != null && Cancellation.IsCancellationRequested)
+                            break;
+                        
                         //Iterate through all queued clicks
                         for (int j = 0; j <= Points.Count - 1; j++)
                         {
+                            if (Cancellation != null && Cancellation.IsCancellationRequested)
+                                break;
+
                             SetCursorPosition(Points[j]); //Set cursor position before clicking
+
+                            if (Cancellation != null && Cancellation.IsCancellationRequested)
+                                break;
+
                             if (ClickType[j].Equals("R"))
                             {
                                 ClickRightMouseButtonSendInput();
@@ -872,18 +918,35 @@ namespace Auto_Clicker
                             {
                                 ClickLeftMouseButtonSendInput();
                             }
-                            Thread.Sleep(Times[j]);
+                            // Sleep but wake early if cancellation requested
+                            if (Cancellation != null)
+                            {
+                                // WaitOne returns true if signaled (cancellation requested)
+                                if (Cancellation.WaitHandle.WaitOne(Times[j]))
+                                    break;
+                            }
+                            else
+                            {
+                                Thread.Sleep(Times[j]);
+                            }
                         }
+                        if (Cancellation != null && Cancellation.IsCancellationRequested)
+                            break;
+
                         i++;
                     }
                 }
-                catch (ThreadAbortException /*ex*/)
-                {
-                    //MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
                 catch (Exception exc)
                 {
-                    MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    // Use MessageBox on UI thread; here it's acceptable to show error
+                    try
+                    {
+                        MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    catch
+                    {
+                        // swallow if UI can't be accessed
+                    }
                 }
             }
 
