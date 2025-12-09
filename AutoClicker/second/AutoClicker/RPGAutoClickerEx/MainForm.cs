@@ -135,7 +135,7 @@ namespace Auto_Clicker
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Exception",
+                MessageBox.Show(ex.Message,
                     "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
@@ -954,13 +954,13 @@ namespace Auto_Clicker
 
                     while ((i <= Iterations) || (Iterations == 0))
                     {
-                        if (Cancellation != null && Cancellation.IsCancellationRequested)
+                        if (Cancellation == null || Cancellation.IsCancellationRequested)
                             break;
                         
                         //Iterate through all queued clicks
                         for (int j = 0; j <= Points.Count - 1; j++)
                         {
-                            if (Cancellation != null && Cancellation.IsCancellationRequested)
+                            if (Cancellation == null || Cancellation.IsCancellationRequested)
                                 break;
 
                             // Highlight the corresponding ListView item on the UI thread
@@ -978,7 +978,7 @@ namespace Auto_Clicker
 
                             SetCursorPosition(Points[j]); //Set cursor position before clicking
 
-                            if (Cancellation != null && Cancellation.IsCancellationRequested)
+                            if (Cancellation == null || Cancellation.IsCancellationRequested)
                                 break;
 
                             if (ClickType[j].Equals("R"))
