@@ -65,7 +65,6 @@ namespace Auto_Clicker
             this.PositionsGroupBox = new System.Windows.Forms.GroupBox();
             this.SleepTimeTextBox = new System.Windows.Forms.TextBox();
             this.QueuedYPositionTextBox = new System.Windows.Forms.TextBox();
-            //this.RightClickCheckBox = new System.Windows.Forms.CheckBox();
             this.SleepTimeLabel = new System.Windows.Forms.Label();
             this.AddPositionButtonLeft = new System.Windows.Forms.Button();
             this.AddPositionButtonRight = new System.Windows.Forms.Button();
@@ -75,34 +74,32 @@ namespace Auto_Clicker
             this.QueuedXPositionLabel = new System.Windows.Forms.Label();
             this.QueuedYPositionLabel = new System.Windows.Forms.Label();
             this.QueuedXPositionTextBox = new System.Windows.Forms.TextBox();
-            this.PositionsListView = new TestListView();
-            this.TxtEdit = new System.Windows.Forms.TextBox();
-            this.XCoordHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.YCoordHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.LRHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.SleepTimeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.ListViewContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.RemoveAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.RemoveSelectedMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.TxtEdit = new System.Windows.Forms.TextBox();
             this.QueuedPositionsLabel = new System.Windows.Forms.Label();
-            //this.CurrentPosGroupBox = new System.Windows.Forms.GroupBox();
             this.CopyToAddButton = new System.Windows.Forms.Button();
             this.CurrentYCoordTextBox = new System.Windows.Forms.TextBox();
             this.XCoordLabel = new System.Windows.Forms.Label();
             this.YCoordLabel = new System.Windows.Forms.Label();
             this.CurrentXCoordTextBox = new System.Windows.Forms.TextBox();
             this.StartingOptionsGroupBox = new System.Windows.Forms.GroupBox();
-            this.StopClickingButton = new System.Windows.Forms.Button();
-            this.StartClickingButton = new System.Windows.Forms.Button();
+            this.PauseResumeClickingButton = new System.Windows.Forms.Button();
+            this.StartStopClickingButton = new System.Windows.Forms.Button();
             this.CurClickingStatus = new System.Windows.Forms.Label();
             this.NumRepeatsTextBox = new System.Windows.Forms.TextBox();
             this.NumRepeatsLabel = new System.Windows.Forms.Label();
             this.CurrentPositionTimer = new System.Windows.Forms.Timer(this.components);
             this.AboutLabel = new System.Windows.Forms.Label();
             this.btnRunExecutable = new System.Windows.Forms.Button();
+            this.PositionsListView = new TestListView();
+            this.XCoordHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.YCoordHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.LRHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.SleepTimeHeader = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.PositionsGroupBox.SuspendLayout();
             this.ListViewContextMenu.SuspendLayout();
-            //this.CurrentPosGroupBox.SuspendLayout();
             this.StartingOptionsGroupBox.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -110,7 +107,6 @@ namespace Auto_Clicker
             // 
             this.PositionsGroupBox.Controls.Add(this.SleepTimeTextBox);
             this.PositionsGroupBox.Controls.Add(this.QueuedYPositionTextBox);
-            //this.PositionsGroupBox.Controls.Add(this.RightClickCheckBox);
             this.PositionsGroupBox.Controls.Add(this.SleepTimeLabel);
             this.PositionsGroupBox.Controls.Add(this.AddPositionButtonLeft);
             this.PositionsGroupBox.Controls.Add(this.AddPositionButtonRight);
@@ -140,32 +136,20 @@ namespace Auto_Clicker
             // 
             // QueuedYPositionTextBox
             // 
+            this.QueuedYPositionTextBox.BackColor = System.Drawing.Color.Gold;
+            this.QueuedYPositionTextBox.ForeColor = System.Drawing.Color.Blue;
             this.QueuedYPositionTextBox.Location = new System.Drawing.Point(256, 225);
             this.QueuedYPositionTextBox.Name = "QueuedYPositionTextBox";
+            this.QueuedYPositionTextBox.ReadOnly = true;
             this.QueuedYPositionTextBox.Size = new System.Drawing.Size(87, 20);
             this.QueuedYPositionTextBox.TabIndex = 10;
-            this.QueuedYPositionTextBox.ReadOnly = true;
-            this.QueuedYPositionTextBox.BackColor = Color.Gold;
-            this.QueuedYPositionTextBox.ForeColor = Color.Blue;
-            // 
-            // RightClickCheckBox
-            //
-            /*
-            this.RightClickCheckBox.AutoSize = true;
-            this.RightClickCheckBox.Location = new System.Drawing.Point(8, 256);
-            this.RightClickCheckBox.Name = "RightClickCheckBox";
-            this.RightClickCheckBox.Size = new System.Drawing.Size(83, 17);
-            this.RightClickCheckBox.TabIndex = 9;
-            this.RightClickCheckBox.Text = "Right Click?";
-            this.RightClickCheckBox.UseVisualStyleBackColor = true;
-            */
             // 
             // SleepTimeLabel
             // 
             this.SleepTimeLabel.AutoSize = true;
             this.SleepTimeLabel.Location = new System.Drawing.Point(123, 257);
             this.SleepTimeLabel.Name = "SleepTimeLabel";
-            this.SleepTimeLabel.Size = new System.Drawing.Size(106, 13);
+            this.SleepTimeLabel.Size = new System.Drawing.Size(103, 13);
             this.SleepTimeLabel.TabIndex = 15;
             this.SleepTimeLabel.Text = "Time to Sleep (ms) - ";
             // 
@@ -239,58 +223,13 @@ namespace Auto_Clicker
             // 
             // QueuedXPositionTextBox
             // 
+            this.QueuedXPositionTextBox.BackColor = System.Drawing.Color.Gold;
+            this.QueuedXPositionTextBox.ForeColor = System.Drawing.Color.Blue;
             this.QueuedXPositionTextBox.Location = new System.Drawing.Point(143, 225);
             this.QueuedXPositionTextBox.Name = "QueuedXPositionTextBox";
+            this.QueuedXPositionTextBox.ReadOnly = true;
             this.QueuedXPositionTextBox.Size = new System.Drawing.Size(87, 20);
             this.QueuedXPositionTextBox.TabIndex = 8;
-            this.QueuedXPositionTextBox.ReadOnly = true;
-            this.QueuedXPositionTextBox.BackColor = Color.Gold;
-            this.QueuedXPositionTextBox.ForeColor = Color.Blue;
-            // 
-            // PositionsListView
-            // 
-            this.PositionsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.XCoordHeader,
-            this.YCoordHeader,
-            this.LRHeader,
-            this.SleepTimeHeader});
-            this.PositionsListView.ContextMenuStrip = this.ListViewContextMenu;
-            this.PositionsListView.FullRowSelect = true;
-            this.PositionsListView.GridLines = true;
-            this.PositionsListView.Location = new System.Drawing.Point(6, 32);
-            this.PositionsListView.Name = "PositionsListView";
-            this.PositionsListView.Size = new System.Drawing.Size(338, 181);
-            this.PositionsListView.TabIndex = 1;
-            this.PositionsListView.UseCompatibleStateImageBehavior = false;
-            this.PositionsListView.View = System.Windows.Forms.View.Details;
-            /////////////////////////////////////////
-            this.TxtEdit.Visible = false;
-            this.PositionsListView.MouseUp += new MouseEventHandler(this.PositionsListView_MouseUp);
-            this.PositionsListView.MouseDown += new MouseEventHandler(this.PositionsListView_MouseDown);
-            this.PositionsListView.Scroll += new System.EventHandler(this.PositionsListView_Scroll);
-            this.TxtEdit.Leave += new System.EventHandler(this.TxtEdit_Leave);
-            this.TxtEdit.KeyUp += new KeyEventHandler(this.TxtEdit_KeyUp);
-            /////////////////////////////////////////
-            // 
-            // XCoordHeader
-            // 
-            this.XCoordHeader.Text = "X";
-            //this.XCoordHeader.Width = 70*2;
-            // 
-            // YCoordHeader
-            // 
-            this.YCoordHeader.Text = "Y";
-            //this.YCoordHeader.Width = 70*2;
-            // 
-            // LRHeader
-            // 
-            this.LRHeader.Text = "L/M/R";
-            //this.LRHeader.Width = 50*2;
-            // 
-            // SleepTimeHeader
-            // 
-            this.SleepTimeHeader.Text = "ms";
-            //this.SleepTimeHeader.Width = 100*2;
             // 
             // ListViewContextMenu
             // 
@@ -298,44 +237,40 @@ namespace Auto_Clicker
             this.RemoveAllMenuItem,
             this.RemoveSelectedMenuItem});
             this.ListViewContextMenu.Name = "ListViewContextMenu";
-            this.ListViewContextMenu.Size = new System.Drawing.Size(167, 48);
+            this.ListViewContextMenu.Size = new System.Drawing.Size(202, 56);
             // 
             // RemoveAllMenuItem
             // 
             this.RemoveAllMenuItem.Name = "RemoveAllMenuItem";
-            this.RemoveAllMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.RemoveAllMenuItem.Size = new System.Drawing.Size(201, 26);
             this.RemoveAllMenuItem.Text = "Remove All Items";
             this.RemoveAllMenuItem.Click += new System.EventHandler(this.RemoveAllMenuItem_Click);
             // 
             // RemoveSelectedMenuItem
             // 
             this.RemoveSelectedMenuItem.Name = "RemoveSelectedMenuItem";
-            this.RemoveSelectedMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.RemoveSelectedMenuItem.Size = new System.Drawing.Size(201, 26);
             this.RemoveSelectedMenuItem.Text = "Remove Selected";
             this.RemoveSelectedMenuItem.Click += new System.EventHandler(this.RemoveSelectedMenuItem_Click);
+            // 
+            // TxtEdit
+            // 
+            this.TxtEdit.Location = new System.Drawing.Point(0, 0);
+            this.TxtEdit.Name = "TxtEdit";
+            this.TxtEdit.Size = new System.Drawing.Size(100, 20);
+            this.TxtEdit.TabIndex = 16;
+            this.TxtEdit.Visible = false;
+            this.TxtEdit.KeyUp += new System.Windows.Forms.KeyEventHandler(this.TxtEdit_KeyUp);
+            this.TxtEdit.Leave += new System.EventHandler(this.TxtEdit_Leave);
             // 
             // QueuedPositionsLabel
             // 
             this.QueuedPositionsLabel.AutoSize = true;
             this.QueuedPositionsLabel.Location = new System.Drawing.Point(3, 16);
             this.QueuedPositionsLabel.Name = "QueuedPositionsLabel";
-            this.QueuedPositionsLabel.Size = new System.Drawing.Size(123, 13);
+            this.QueuedPositionsLabel.Size = new System.Drawing.Size(316, 13);
             this.QueuedPositionsLabel.TabIndex = 0;
             this.QueuedPositionsLabel.Text = "Cursor Position (X, Y), Button to Click (L/M/R), Time to Sleep (ms)";
-            // 
-            // CurrentPosGroupBox
-            // 
-            //this.CurrentPosGroupBox.Controls.Add(this.CopyToAddButton);
-            //this.CurrentPosGroupBox.Controls.Add(this.CurrentYCoordTextBox);
-            //this.CurrentPosGroupBox.Controls.Add(this.XCoordLabel);
-            //this.CurrentPosGroupBox.Controls.Add(this.YCoordLabel);
-            //this.CurrentPosGroupBox.Controls.Add(this.CurrentXCoordTextBox);
-            //this.CurrentPosGroupBox.Location = new System.Drawing.Point(12, 12);
-            //this.CurrentPosGroupBox.Name = "CurrentPosGroupBox";
-            //this.CurrentPosGroupBox.Size = new System.Drawing.Size(267, 131);
-            //this.CurrentPosGroupBox.TabIndex = 2;
-            //this.CurrentPosGroupBox.TabStop = false;
-            //this.CurrentPosGroupBox.Text = "Current Mouse Cursor Position";
             // 
             // CopyToAddButton
             // 
@@ -381,8 +316,8 @@ namespace Auto_Clicker
             // 
             // StartingOptionsGroupBox
             // 
-            this.StartingOptionsGroupBox.Controls.Add(this.StopClickingButton);
-            this.StartingOptionsGroupBox.Controls.Add(this.StartClickingButton);
+            this.StartingOptionsGroupBox.Controls.Add(this.PauseResumeClickingButton);
+            this.StartingOptionsGroupBox.Controls.Add(this.StartStopClickingButton);
             this.StartingOptionsGroupBox.Controls.Add(this.CurClickingStatus);
             this.StartingOptionsGroupBox.Controls.Add(this.NumRepeatsTextBox);
             this.StartingOptionsGroupBox.Controls.Add(this.NumRepeatsLabel);
@@ -393,37 +328,36 @@ namespace Auto_Clicker
             this.StartingOptionsGroupBox.TabStop = false;
             this.StartingOptionsGroupBox.Text = "Starting Options";
             // 
-            // StopClickingButton
+            // PauseResumeClickingButton
             // 
-            this.StopClickingButton.Location = new System.Drawing.Point(6, 85);
-            this.StopClickingButton.Name = "StopClickingButton";
-            this.StopClickingButton.Size = new System.Drawing.Size(255, 37);
-            this.StopClickingButton.TabIndex = 3;
-            this.StopClickingButton.Text = "Stop Clicking (F2)";
-            this.StopClickingButton.UseVisualStyleBackColor = true;
-            this.StopClickingButton.Click += new System.EventHandler(this.StopClickingButton_Click);
+            this.PauseResumeClickingButton.Location = new System.Drawing.Point(6, 85);
+            this.PauseResumeClickingButton.Name = "PauseResumeClickingButton";
+            this.PauseResumeClickingButton.Size = new System.Drawing.Size(255, 37);
+            this.PauseResumeClickingButton.TabIndex = 3;
+            this.PauseResumeClickingButton.Text = "Pause/Resume Clicking (F2)";
+            this.PauseResumeClickingButton.UseVisualStyleBackColor = true;
+            this.PauseResumeClickingButton.Click += new System.EventHandler(this.PauseResumeClickingButton_Click);
             // 
-            // StartClickingButton
+            // StartStopClickingButton
             // 
-            this.StartClickingButton.Location = new System.Drawing.Point(6, 42);
-            this.StartClickingButton.Name = "StartClickingButton";
-            this.StartClickingButton.Size = new System.Drawing.Size(255, 37);
-            this.StartClickingButton.TabIndex = 2;
-            this.StartClickingButton.Text = "Start Clicking the Sequence (F1)";
-            this.StartClickingButton.UseVisualStyleBackColor = true;
-            this.StartClickingButton.Click += new System.EventHandler(this.StartClickingButton_Click);
+            this.StartStopClickingButton.Location = new System.Drawing.Point(6, 42);
+            this.StartStopClickingButton.Name = "StartStopClickingButton";
+            this.StartStopClickingButton.Size = new System.Drawing.Size(255, 37);
+            this.StartStopClickingButton.TabIndex = 2;
+            this.StartStopClickingButton.Text = "Start/Stop Clicking the Sequence (F1)";
+            this.StartStopClickingButton.UseVisualStyleBackColor = true;
+            this.StartStopClickingButton.Click += new System.EventHandler(this.StartStopClickingButton_Click);
             // 
             // CurClickingStatus
-            //
+            // 
             this.CurClickingStatus.AutoSize = true;
-            this.CurClickingStatus.Location = new System.Drawing.Point(6, 127);
-            this.CurClickingStatus.Name = "CurClickingStatus";
-            this.CurClickingStatus.Size = new System.Drawing.Size(255, 37);
-            this.CurClickingStatus.TabIndex = 0;
-            this.CurClickingStatus.TabStop = false;
-            this.CurClickingStatus.Text = "Status: Not Clicking";
             this.CurClickingStatus.BackColor = System.Drawing.Color.Gold;
             this.CurClickingStatus.ForeColor = System.Drawing.Color.Blue;
+            this.CurClickingStatus.Location = new System.Drawing.Point(6, 127);
+            this.CurClickingStatus.Name = "CurClickingStatus";
+            this.CurClickingStatus.Size = new System.Drawing.Size(152, 13);
+            this.CurClickingStatus.TabIndex = 0;
+            this.CurClickingStatus.Text = "Status: Not Clicking @ Cycle 1";
             // 
             // NumRepeatsTextBox
             // 
@@ -438,7 +372,7 @@ namespace Auto_Clicker
             this.NumRepeatsLabel.AutoSize = true;
             this.NumRepeatsLabel.Location = new System.Drawing.Point(6, 19);
             this.NumRepeatsLabel.Name = "NumRepeatsLabel";
-            this.NumRepeatsLabel.Size = new System.Drawing.Size(121, 13);
+            this.NumRepeatsLabel.Size = new System.Drawing.Size(151, 13);
             this.NumRepeatsLabel.TabIndex = 0;
             this.NumRepeatsLabel.Text = "Number of Cycles (0 = Infinite):";
             // 
@@ -452,11 +386,12 @@ namespace Auto_Clicker
             this.AboutLabel.AutoSize = true;
             this.AboutLabel.Location = new System.Drawing.Point(12, 315);
             this.AboutLabel.Name = "AboutLabel";
-            this.AboutLabel.Size = new System.Drawing.Size(186, 13);
+            this.AboutLabel.Size = new System.Drawing.Size(365, 13);
             this.AboutLabel.TabIndex = 3;
-            this.AboutLabel.Text = "Open Source Developer Federica Domani (federicadomani@mailfence.com)";
-
+            this.AboutLabel.Text = "Open Source Developer Federica Domani (federicadomani@mailfence.com) / Contributed by Anol P. <anolpaisal@gmail.com>";
+            // 
             // btnRunExecutable
+            // 
             this.btnRunExecutable.Location = new System.Drawing.Point(4, 254);
             this.btnRunExecutable.Name = "btnRunExecutable";
             this.btnRunExecutable.Size = new System.Drawing.Size(124, 23);
@@ -464,31 +399,62 @@ namespace Auto_Clicker
             this.btnRunExecutable.Text = "Run AutoClicker2";
             this.btnRunExecutable.UseVisualStyleBackColor = true;
             this.btnRunExecutable.Click += new System.EventHandler(this.btnRunExecutable_Click);
-
+            // 
+            // PositionsListView
+            // 
+            this.PositionsListView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.XCoordHeader,
+            this.YCoordHeader,
+            this.LRHeader,
+            this.SleepTimeHeader});
+            this.PositionsListView.ContextMenuStrip = this.ListViewContextMenu;
+            this.PositionsListView.FullRowSelect = true;
+            this.PositionsListView.GridLines = true;
+            this.PositionsListView.HideSelection = false;
+            this.PositionsListView.Location = new System.Drawing.Point(6, 32);
+            this.PositionsListView.Name = "PositionsListView";
+            this.PositionsListView.Size = new System.Drawing.Size(338, 181);
+            this.PositionsListView.TabIndex = 1;
+            this.PositionsListView.UseCompatibleStateImageBehavior = false;
+            this.PositionsListView.View = System.Windows.Forms.View.Details;
+            this.PositionsListView.Scroll += new System.EventHandler(this.PositionsListView_Scroll);
+            this.PositionsListView.MouseDown += new System.Windows.Forms.MouseEventHandler(this.PositionsListView_MouseDown);
+            this.PositionsListView.MouseUp += new System.Windows.Forms.MouseEventHandler(this.PositionsListView_MouseUp);
+            // 
+            // XCoordHeader
+            // 
+            this.XCoordHeader.Text = "X";
+            // 
+            // YCoordHeader
+            // 
+            this.YCoordHeader.Text = "Y";
+            // 
+            // LRHeader
+            // 
+            this.LRHeader.Text = "L/M/R";
+            // 
+            // SleepTimeHeader
+            // 
+            this.SleepTimeHeader.Text = "ms";
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(643, 337); // Main Window Size
+            this.ClientSize = new System.Drawing.Size(643, 337);
             this.Controls.Add(this.AboutLabel);
             this.Controls.Add(this.btnRunExecutable);
             this.Controls.Add(this.StartingOptionsGroupBox);
-            //this.Controls.Add(this.CurrentPosGroupBox);
             this.Controls.Add(this.PositionsGroupBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
-            this.MinimizeBox = true;
             this.Name = "MainForm";
-            this.Text = "AutoClicker2Ex Record Play v5.9.9.0";
+            this.Text = "AutoClicker2Ex Record Play v5.9.9.x";
             this.Load += new System.EventHandler(this.MainForm_Load);
-            //this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainForm_KeyDown);
             this.PositionsGroupBox.ResumeLayout(false);
             this.PositionsGroupBox.PerformLayout();
             this.ListViewContextMenu.ResumeLayout(false);
-            //this.CurrentPosGroupBox.ResumeLayout(false);
-            //this.CurrentPosGroupBox.PerformLayout();
             this.StartingOptionsGroupBox.ResumeLayout(false);
             this.StartingOptionsGroupBox.PerformLayout();
             this.ResumeLayout(false);
@@ -525,8 +491,8 @@ namespace Auto_Clicker
         private System.Windows.Forms.Label YCoordLabel;
         private System.Windows.Forms.TextBox CurrentXCoordTextBox;
         private System.Windows.Forms.GroupBox StartingOptionsGroupBox;
-        private System.Windows.Forms.Button StopClickingButton;
-        private System.Windows.Forms.Button StartClickingButton;
+        private System.Windows.Forms.Button PauseResumeClickingButton;
+        private System.Windows.Forms.Button StartStopClickingButton;
         private System.Windows.Forms.Label CurClickingStatus;
         private System.Windows.Forms.TextBox NumRepeatsTextBox;
         private System.Windows.Forms.Label NumRepeatsLabel;

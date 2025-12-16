@@ -14,11 +14,14 @@ namespace Auto_Clicker
     public partial class MainForm : Form
     {
         static bool m_clicking = false;
+        static bool m_pause = false;
 
         #region Global Variables and Properties
 
         private Thread ClickThread; //Thread to take care of clicking the mouse
                                     //so UI is not made unresponsive
+        
+        private ClickThreadHelper helper;
 
         private Point CurrentPosition { get; set; } //The current position of the mouse cursor
 
@@ -68,6 +71,8 @@ namespace Auto_Clicker
             RegisterHotKey(this.Handle, ADDLEFT_HOTKEY, 0, ((int)(System.Windows.Forms.Keys.F4)));
             RegisterHotKey(this.Handle, ADDRIGHT_HOTKEY, 0, ((int)(System.Windows.Forms.Keys.F5)));
             RegisterHotKey(this.Handle, ADDMIDDLE_HOTKEY, 0, ((int)(System.Windows.Forms.Keys.F6)));
+
+            helper = new ClickThreadHelper();
         }
 
         //#endregion
@@ -76,11 +81,11 @@ namespace Auto_Clicker
         {
             if (m.Msg == 0x0312 && m.WParam.ToInt32() == START_HOTKEY)
             {
-                StartClickingButton_Click(null, null);
+                StartStopClickingButton_Click(null, null);
             }
             else if (m.Msg == 0x0312 && m.WParam.ToInt32() == STOP_HOTKEY)
             {
-                StopClickingButton_Click(null, null);
+                PauseResumeClickingButton_Click(null, null);
             }
             else if (m.Msg == 0x0312 && m.WParam.ToInt32() == COPY_HOTKEY)
             {
@@ -180,7 +185,14 @@ namespace Auto_Clicker
                 )
                 this.CurClickingStatus.Text = "Status: Clicking";
             else
-                this.CurClickingStatus.Text = "Status: Not Clicking";
+            {
+                this.CurClickingStatus.Text = "Status: Not clicking";
+                this.StartStopClickingButton.Text = "Start Clicking the Sequence (F1)";
+                this.PauseResumeClickingButton.Enabled = false;
+            }
+            
+            if (this.helper != null)
+                this.CurClickingStatus.Text += " @ Cycle " + this.helper.currentCycle.ToString();
         }
 
         /// <summary>
@@ -409,51 +421,128 @@ namespace Auto_Clicker
         /// <summary>
         /// Assign all points in the queue to the ClickHelper and start the thread
         /// </summary>
-        private void StartClickingButton_Click(object sender, EventArgs e)
+        private void StartStopClickingButton_Click(object sender, EventArgs e)
         {
-            m_clicking = true;
-
-            if (IsValidNumericalInput(NumRepeatsTextBox.Text))
+            if (!m_clicking)
             {
-                int iterations = Convert.ToInt32(NumRepeatsTextBox.Text);
-                List<Point> points = new List<Point>();
-                List<string> clickType = new List<string>();
-                List<int> times = new List<int>();
+                if (IsValidNumericalInput(NumRepeatsTextBox.Text))
+                {
+                    if (PositionsListView.Items.Count == 0)
+                    {
+                        MessageBox.Show("No any item!", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
 
-                foreach (ListViewItem item in PositionsListView.Items)
-                {
-                    //Add data in queued clicks to corresponding List collection
-                    int x = Convert.ToInt32(item.Text); //x coordinate
-                    int y = Convert.ToInt32(item.SubItems[1].Text); //y coordinate
-                    clickType.Add(item.SubItems[2].Text); //click type
-                    times.Add(Convert.ToInt32(item.SubItems[3].Text)); //sleep time
+                    int iterations = Convert.ToInt32(NumRepeatsTextBox.Text);
+                    List<Point> points = new List<Point>();
+                    List<string> clickType = new List<string>();
+                    List<int> times = new List<int>();
 
-                    points.Add(new Point(x, y));
+                    foreach (ListViewItem item in PositionsListView.Items)
+                    {
+                        //Add data in queued clicks to corresponding List collection
+                        int x = Convert.ToInt32(item.Text); //x coordinate
+                        int y = Convert.ToInt32(item.SubItems[1].Text); //y coordinate
+                        clickType.Add(item.SubItems[2].Text); //click type
+                        times.Add(Convert.ToInt32(item.SubItems[3].Text)); //sleep time
+
+                        points.Add(new Point(x, y));
+                    }
+                    
+                    try
+                    {
+                        //Create a ClickHelper passing Lists of click information and a cancellation token
+                        if (ClickCancellationSource != null)
+                        {
+                            ClickCancellationSource.Dispose();
+                            ClickCancellationSource = null;
+                        }
+
+                        ClickCancellationSource = new CancellationTokenSource();
+                        //Create a ClickHelper passing Lists of click information
+                        helper.Points = points;
+                        helper.ClickType = clickType;
+                        helper.Iterations = iterations;
+                        helper.Times = times;
+                        helper.Cancellation = ClickCancellationSource.Token;
+                        helper.Owner = this;
+
+                        // initialize pause event (signaled -> running)
+                        helper.PauseEvent = new ManualResetEvent(true);
+                        helper.currentIndex = 0;
+                        helper.currentCycle = 1;
+
+                        //Create the thread passing the Run method
+                        ClickThread = new Thread(new ThreadStart(helper.Run));
+                        ClickThread.Name = "Run";
+                        ClickThread.IsBackground = true;
+
+                        this.StartStopClickingButton.Text = "Stop Clicking (F1)";
+                        this.PauseResumeClickingButton.Enabled = true;
+                        this.PauseResumeClickingButton.Text = "Pause Clicking (F2)";
+                        m_clicking = true;
+
+                        //Start the thread, thus starting the clicks
+                        ClickThread.Start();
+                    }
+                    catch (Exception exc)
+                    {
+                        MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
                 }
-                try
+                else
                 {
-                    //Create a ClickHelper passing Lists of click information and a cancellation token
-                    ClickCancellationSource = new CancellationTokenSource();
-                    //Create a ClickHelper passing Lists of click information
-                    ClickThreadHelper helper = new ClickThreadHelper() { 
-                        Points = points, ClickType = clickType, 
-                        Iterations = iterations, Times = times, 
-                        Cancellation = ClickCancellationSource.Token, Owner = this };
-                    //Create the thread passing the Run method
-                    ClickThread = new Thread(new ThreadStart(helper.Run));
-                    ClickThread.IsBackground = true;
-                    //Start the thread, thus starting the clicks
-                    ClickThread.Start();
-                }
-                catch (Exception exc)
-                {
-                    MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error); 
+                    MessageBox.Show("Number of repeats is not a valid positive integer", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Number of repeats is not a valid positive integer", "Invalid Input", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                m_clicking = false;
+
+                this.StartStopClickingButton.Text = "Start Clicking the Sequence (F1)";
+                this.PauseResumeClickingButton.Enabled = false;
+                try
+                {
+                    if (ClickCancellationSource != null)
+                    {
+                        ClickCancellationSource.Cancel();
+                    }
+
+                    if ((ClickThread != null) && ClickThread.IsAlive)
+                    {
+                        // Wait up to 5 seconds for the thread to finish
+                        if (!ClickThread.Join(5000))
+                        {
+                            // If the thread doesn't stop in a reasonable time, inform the user.
+                            MessageBox.Show("Clicking thread did not stop within the timeout. Please wait or restart the application to ensure clicks stop.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        }
+                        //MessageBox.Show("Clicking successfully stopped", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+                catch (ThreadAbortException)
+                {
+                    // Dispose the cancellation source
+                    if (ClickCancellationSource != null)
+                    {
+                        ClickCancellationSource.Dispose();
+                        ClickCancellationSource = null;
+                    }
+                }
+                catch (Exception exc)
+                {
+                    MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    // ensure PauseEvent disposed
+                    if (helper != null && helper.PauseEvent != null)
+                    {
+                        try { helper.PauseEvent.Close(); } catch { }
+                        helper.PauseEvent = null;
+                    }
+                }
             }
+            
         }
 
         [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
@@ -502,41 +591,21 @@ namespace Auto_Clicker
         /// <summary>
         /// Abort the clicking thread and so stop all simulated clicks
         /// </summary>
-        private void StopClickingButton_Click(object sender, EventArgs e)
+        private void PauseResumeClickingButton_Click(object sender, EventArgs e)
         {
-            m_clicking = false;
-
-            try
+            if (m_clicking)
             {
-                if (ClickCancellationSource != null)
+                if(m_pause == true) 
                 {
-                    ClickCancellationSource.Cancel();
+                    m_pause = false;
+                    this.PauseResumeClickingButton.Text = "Pause Clicking (F2)";
+                    if (helper != null) helper.Resume();
                 }
-
-                if ((ClickThread != null) && ClickThread.IsAlive)
+                else
                 {
-                    //ClickThread.Abort(); //Attempt to stop the thread
-                    // Wait up to 5 seconds for the thread to finish
-                    if (!ClickThread.Join(5000))
-                    {
-                        // If the thread doesn't stop in a reasonable time, inform the user.
-                        MessageBox.Show("Clicking thread did not stop within the timeout. Please wait or restart the application to ensure clicks stop.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
-
-                    //MessageBox.Show("Clicking successfully stopped", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                }
-            }
-            catch (Exception exc)
-            {
-                MessageBox.Show(exc.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-            finally
-            {
-                // Dispose the cancellation source
-                if (ClickCancellationSource != null)
-                {
-                    ClickCancellationSource.Dispose();
-                    ClickCancellationSource = null;
+                    m_pause = true;
+                    this.PauseResumeClickingButton.Text = "Resume Clicking (F2)";
+                    if (helper != null) helper.Pause();
                 }
             }
         }
@@ -568,7 +637,7 @@ namespace Auto_Clicker
             try
             {
                 PositionsListView.Items[index].Selected = true;
-                PositionsListView.Items[index].BackColor = Color.Yellow ;
+                PositionsListView.Items[index].BackColor = Color.LightGoldenrodYellow ;
                 PositionsListView.EnsureVisible(index);
                 CurrentlyHighlightedIndex = index;
             }
@@ -773,12 +842,17 @@ namespace Auto_Clicker
             public List<string> ClickType { get; set; } //Is each point right click or left click
             public List<int> Times { get; set; } //Holds sleep times for after each click
 
-
             // Cancellation token for cooperative stop
             public CancellationToken Cancellation { get; set; }
            
             // Reference back to the owning form so we can request UI updates (highlight)
             public MainForm Owner { get; set; }
+
+            public int currentCycle { get; set; }
+
+            // Pause support
+            public ManualResetEvent PauseEvent { get; set; }   // signaled => running; nonsignaled => paused
+            public int currentIndex { get; set; }             // index to resume from
 
             //Import unmanaged functions from DLL library
             [DllImport("user32.dll")]
@@ -937,6 +1011,32 @@ namespace Auto_Clicker
 
             #endregion
 
+            #region Pause/Resume helpers
+
+            public void Pause()
+            {
+                try
+                {
+                    if (PauseEvent == null)
+                        PauseEvent = new ManualResetEvent(true);
+                    PauseEvent.Reset();
+                }
+                catch { }
+            }
+
+            public void Resume()
+            {
+                try
+                {
+                    if (PauseEvent == null)
+                        PauseEvent = new ManualResetEvent(true);
+                    PauseEvent.Set();
+                }
+                catch { }
+            }
+
+            #endregion
+
             #region Methods
 
             /// <summary>
@@ -950,18 +1050,35 @@ namespace Auto_Clicker
             {
                 try
                 {
-                    int i = 1;
+                    int i = (currentCycle > 0) ? currentCycle : 1;
 
                     while ((i <= Iterations) || (Iterations == 0))
                     {
-                        if (Cancellation == null || Cancellation.IsCancellationRequested)
+                        currentCycle = i;
+                        if (Cancellation != null && Cancellation.IsCancellationRequested)
                             break;
-                        
+
                         //Iterate through all queued clicks
-                        for (int j = 0; j <= Points.Count - 1; j++)
+                        int startIndex = Math.Max(0, currentIndex);
+                        for (int j = startIndex; j < Points.Count; j++)
                         {
-                            if (Cancellation == null || Cancellation.IsCancellationRequested)
+                            if (Cancellation != null && Cancellation.IsCancellationRequested)
                                 break;
+                            // Wait for resume (PauseEvent signaled) or cancellation.
+                            if (PauseEvent != null)
+                            {
+                                if (Cancellation != null)
+                                {
+                                    // index 0 = cancellation, 1 = pauseEvent signaled
+                                    int idx = WaitHandle.WaitAny(new WaitHandle[] { Cancellation.WaitHandle, PauseEvent });
+                                    if (idx == 0)
+                                        break;
+                                }
+                                else
+                                {
+                                    PauseEvent.WaitOne();
+                                }
+                            }
 
                             // Highlight the corresponding ListView item on the UI thread
                             if (Owner != null)
@@ -978,7 +1095,7 @@ namespace Auto_Clicker
 
                             SetCursorPosition(Points[j]); //Set cursor position before clicking
 
-                            if (Cancellation == null || Cancellation.IsCancellationRequested)
+                            if (Cancellation != null && Cancellation.IsCancellationRequested)
                                 break;
 
                             if (ClickType[j].Equals("R"))
@@ -994,22 +1111,43 @@ namespace Auto_Clicker
                             {
                                 ClickLeftMouseButtonSendInput();
                             }
-                            // Sleep but wake early if cancellation requested
-                            if (Cancellation != null)
+
+                            // Wait until not paused (blocks only when paused)
+                            if (PauseEvent != null)
                             {
-                                // WaitOne returns true if signaled (cancellation requested)
-                                if (Cancellation.WaitHandle.WaitOne(Times[j]))
-                                    break;
+                                PauseEvent.WaitOne(); // returns immediately when running, blocks when paused
                             }
-                            else
+
+                            // After click, wait Times[j] but remain responsive to pause/resume/cancel.
+                            if (Times != null && j < Times.Count)
                             {
-                                Thread.Sleep(Times[j]);
+                                int timeout = Times[j];
+                                if (timeout > 0)
+                                {
+                                    // Wait for cancellation or timeout. WaitOne returns true if cancelled.
+                                    if (Cancellation != null)
+                                    {
+                                        if (Cancellation.WaitHandle.WaitOne(timeout))
+                                            break;
+                                    }
+                                    else
+                                    {
+                                        Thread.Sleep(timeout);
+                                    }
+                                }
                             }
+
+                            // Update resume index so we can continue from next element when paused
+                            currentIndex = j + 1;
+                            if (currentIndex >= Points.Count)
+                                currentIndex = 0;
                         }
                         if (Cancellation != null && Cancellation.IsCancellationRequested)
                             break;
 
                         i++;
+                        // reset index for next cycle
+                        currentIndex = 0;
                     }
                 }
                 catch (Exception exc)
@@ -1022,6 +1160,17 @@ namespace Auto_Clicker
                     catch
                     {
                         // swallow if UI can't be accessed
+                    }
+                } finally
+                {
+                    // Clear highlight when worker finishes
+                    if (Owner != null)
+                    {
+                        try
+                        {
+                            Owner.BeginInvoke((Action)(() => Owner.ClearHighlightedItem()));
+                        }
+                        catch { }
                     }
                 }
             }
